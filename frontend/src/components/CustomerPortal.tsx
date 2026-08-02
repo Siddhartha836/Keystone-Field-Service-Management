@@ -28,9 +28,13 @@ export default function CustomerPortal({ token, onRefreshTrigger }: CustomerPort
       const response = await fetch('/api/work-orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) {
+      const contentType = response.headers.get('content-type') || '';
+      if (response.ok && contentType.includes('application/json')) {
         const data = await response.json();
-        reqData = data.content || data;
+        const content = data.content || data;
+        if (Array.isArray(content)) {
+          reqData = content;
+        }
       }
     } catch (e) {
       console.warn("API unavailable for customer requests", e);
@@ -40,8 +44,12 @@ export default function CustomerPortal({ token, onRefreshTrigger }: CustomerPort
       const sitesResponse = await fetch('/api/sites', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (sitesResponse.ok) {
-        sitesData = await sitesResponse.json();
+      const contentType = sitesResponse.headers.get('content-type') || '';
+      if (sitesResponse.ok && contentType.includes('application/json')) {
+        const data = await sitesResponse.json();
+        if (Array.isArray(data)) {
+          sitesData = data;
+        }
       }
     } catch (e) {
       console.warn("API unavailable for customer sites", e);

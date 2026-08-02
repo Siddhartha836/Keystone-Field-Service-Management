@@ -32,15 +32,18 @@ export default function TechnicianView({ token, technicianEmail, userRole, onRef
       const response = await fetch('/api/work-orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) {
+      const contentType = response.headers.get('content-type') || '';
+      if (response.ok && contentType.includes('application/json')) {
         const allOrders = await response.json();
         const content = allOrders.content || allOrders;
-        assignedJobs = content.filter((w: any) => 
-          !w.assignedTo || 
-          w.assignedTo.email === technicianEmail || 
-          userRole === 'MANAGER' || 
-          userRole === 'DISPATCHER'
-        );
+        if (Array.isArray(content)) {
+          assignedJobs = content.filter((w: any) => 
+            !w.assignedTo || 
+            w.assignedTo.email === technicianEmail || 
+            userRole === 'MANAGER' || 
+            userRole === 'DISPATCHER'
+          );
+        }
       }
     } catch (err) {
       console.warn("API unavailable, loading technician demo jobs", err);

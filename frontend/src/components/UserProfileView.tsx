@@ -36,7 +36,8 @@ export default function UserProfileView({ token, onProfileUpdated }: UserProfile
       const profRes = await fetch('/api/users/profile', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (profRes.ok) {
+      const contentType = profRes.headers.get('content-type') || '';
+      if (profRes.ok && contentType.includes('application/json')) {
         profData = await profRes.json();
       }
     } catch (err) {
@@ -47,7 +48,8 @@ export default function UserProfileView({ token, onProfileUpdated }: UserProfile
       const histRes = await fetch('/api/users/profile/history', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (histRes.ok) {
+      const contentType = histRes.headers.get('content-type') || '';
+      if (histRes.ok && contentType.includes('application/json')) {
         histData = await histRes.json();
       }
     } catch (err) {
@@ -69,7 +71,18 @@ export default function UserProfileView({ token, onProfileUpdated }: UserProfile
       }
     } catch (e) {}
 
-    if (!profData) {
+    if (decodedEmail.includes('tech')) {
+      decodedName = 'Dave Tech (HVAC)';
+      decodedRole = 'TECHNICIAN';
+    } else if (decodedEmail.includes('customer')) {
+      decodedName = 'Alice Customer (Meridian)';
+      decodedRole = 'CUSTOMER';
+    } else if (decodedEmail.includes('dispatcher')) {
+      decodedName = 'Sarah Dispatcher';
+      decodedRole = 'DISPATCHER';
+    }
+
+    if (!profData || typeof profData !== 'object' || !profData.name) {
       profData = {
         name: decodedName,
         email: decodedEmail,
@@ -79,22 +92,22 @@ export default function UserProfileView({ token, onProfileUpdated }: UserProfile
       };
     }
 
-    if (!histData || histData.length === 0) {
+    if (!histData || !Array.isArray(histData) || histData.length === 0) {
       histData = [
         {
           id: 1, action: 'Work Order Updated', details: 'Status changed on WO-1001 (AC Unit) to IN_PROGRESS',
           createdAt: new Date(Date.now() - 3600000).toISOString()
         },
         {
-          id: 2, action: 'GPS Check-In', details: 'Duty Check-In recorded at HQ Office Tower',
+          id: 2, action: 'GPS Duty Check-In', details: 'Field Attendance logged - Active On-Duty',
           createdAt: new Date(Date.now() - 14400000).toISOString()
         },
         {
-          id: 3, action: 'Parts Consumed', details: 'Added Compressor Capacitor (Qty: 1) to WO-1001',
+          id: 3, action: 'Parts Inventory Consumed', details: 'Consumed 1x Compressor Capacitor (WO-1001)',
           createdAt: new Date(Date.now() - 28800000).toISOString()
         },
         {
-          id: 4, action: 'Technician Dispatched', details: 'Assigned Dave Tech to WO-1002 (Water Leak)',
+          id: 4, action: 'Technician Dispatched', details: 'Assigned Mike Tech to WO-1002 (Plumbing Repair)',
           createdAt: new Date(Date.now() - 86400000).toISOString()
         }
       ];
