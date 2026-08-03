@@ -38,9 +38,13 @@ export default function ManagerDashboard({ token }: ManagerDashboardProps) {
         const response = await fetch('/api/work-orders', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (response.ok) {
+        const ct = response.headers.get('content-type') || '';
+        if (response.ok && ct.includes('application/json')) {
           const data = await response.json();
-          content = data.content || data;
+          const parsed = data.content || data;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            content = parsed;
+          }
         }
       } catch (err) {
         console.warn('Backend endpoint unavailable, using mock data for dashboard', err);

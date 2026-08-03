@@ -271,16 +271,17 @@ export default function AuthView({ onLoginSuccess }: AuthViewProps) {
         body: JSON.stringify({ email: roleEmail, password: 'password' }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        onLoginSuccess(data.token, {
-          email: data.email,
-          name: data.name,
-          role: data.role,
-        });
-        setLoading(false);
-        return;
-      }
+        const ct = response.headers.get('content-type') || '';
+        if (response.ok && ct.includes('application/json')) {
+          const data = await response.json();
+          onLoginSuccess(data.token, {
+            email: data.email,
+            name: data.name,
+            role: data.role,
+          });
+          setLoading(false);
+          return;
+        }
     } catch (err: any) {
       console.warn('Backend login endpoint unavailable, using live client demo login', err);
     }

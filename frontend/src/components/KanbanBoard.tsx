@@ -38,9 +38,13 @@ export default function KanbanBoard({ token, userRole, onRefreshTrigger }: Kanba
             'Authorization': `Bearer ${token}`
           }
         });
-        if (response.ok) {
+        const ct = response.headers.get('content-type') || '';
+        if (response.ok && ct.includes('application/json')) {
           const data = await response.json();
-          content = data.content || data;
+          const parsed = data.content || data;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            content = parsed;
+          }
         }
       } catch (err) {
         console.warn("Failed to fetch work orders, using mock fallback", err);
@@ -92,7 +96,8 @@ export default function KanbanBoard({ token, userRole, onRefreshTrigger }: Kanba
       const response = await fetch('/api/users/technicians', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) {
+      const ct = response.headers.get('content-type') || '';
+      if (response.ok && ct.includes('application/json')) {
         const data = await response.json();
         setTechnicians(data);
       } else {

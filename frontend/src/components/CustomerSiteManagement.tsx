@@ -31,9 +31,13 @@ export default function CustomerSiteManagement({ token }: CustomerSiteManagement
       const custResp = await fetch('/api/customers', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (custResp.ok) {
+      const ctCust = custResp.headers.get('content-type') || '';
+      if (custResp.ok && ctCust.includes('application/json')) {
         const data = await custResp.json();
-        custData = data.content || data;
+        const parsed = data.content || data;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          custData = parsed;
+        }
       }
     } catch (err) {
       console.warn("API unavailable for customers", err);
@@ -43,8 +47,12 @@ export default function CustomerSiteManagement({ token }: CustomerSiteManagement
       const siteResp = await fetch('/api/sites', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (siteResp.ok) {
-        siteData = await siteResp.json();
+      const ctSite = siteResp.headers.get('content-type') || '';
+      if (siteResp.ok && ctSite.includes('application/json')) {
+        const parsedSites = await siteResp.json();
+        if (Array.isArray(parsedSites) && parsedSites.length > 0) {
+          siteData = parsedSites;
+        }
       }
     } catch (err) {
       console.warn("API unavailable for sites", err);
