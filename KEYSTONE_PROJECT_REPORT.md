@@ -183,8 +183,8 @@ erDiagram
 
 ## 7. Verification & Production Deployment
 
-- **Live Application Deployment:** Hosted on **Netlify** ([Live Netlify Link](https://elaborate-pika-073004.netlify.app)).
-- **Deployment Configuration:** Managed via `netlify.toml` with automated builds on GitHub push.
+- **Frontend Deployment:** Hosted on **Vercel** Edge Network ([Live Application Link](https://keystone-field-service-management-lemon.vercel.app)).
+- **Backend Deployment:** Packaged as containerized Docker build (`backend/Dockerfile`) with `render.yaml` specification for Render Cloud.
 - **Source Code Repository:** Maintained on **GitHub** ([Repository Link](https://github.com/Siddhartha836/Keystone-Field-Service-Management)).
 
 ---
